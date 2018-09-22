@@ -1,3 +1,4 @@
+
 # escape ';' in order to prevent list flattening
 function(listtoarg list_v arg_v)
   string(REPLACE ";" "\;" arg_v ${list_v})
@@ -18,22 +19,28 @@ function(defBI sources_l type linklibs_l linktargets_l properties_l install)
     argtolist(${${varn}_l} ${${varn}})
   endforeach(varn)
 
-  # get a name for the current target, based on the current directory  
+  # get a name for the current target, based on the current directory
   string(REPLACE "${CMAKE_SOURCE_DIR}/" "" progname_tmp ${CMAKE_CURRENT_SOURCE_DIR})
   string(REPLACE "/" "_" progname ${progname_tmp})
 
+  if($ENV{PREFIX} STREQUAL "")
+    set(prefix "/usr")
+  else()
+    set(prefix "$ENV{PREFIX}")
+  endif()
+    
   if(${type} STREQUAL "EXECUTABLE")
     message("adding program \"${progname}\"")
     add_executable(${progname} ${sources})
     set(type_v "RUNTIME")
-    set(destination_v "$ENV{PREFIX}/local/bin/${project}")
+    set(destination_v "${prefix}/local/bin/${project}")
     set(destinationh_v "/dev/null")
   elseif(${type} STREQUAL "SHARED")
     message("adding library \"${progname}\"")
     add_library(${progname} SHARED ${sources})
     set(type_v "LIBRARY")
-    set(destination_v "$ENV{PREFIX}/local/lib/${project}")
-    set(destinationh_v "$ENV{PREFIX}/local/include/${project}")
+    set(destination_v "${prefix}/local/lib/${project}")
+    set(destinationh_v "${prefix}/local/include/${project}")
   else()
     message("Target \"${progname}\" won't build anything")
     return()
