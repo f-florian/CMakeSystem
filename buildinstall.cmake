@@ -23,13 +23,13 @@ function(defBI sources_l type linklibs_l linktargets_l properties_l install)
   string(REPLACE "${CMAKE_SOURCE_DIR}/" "" progname_tmp ${CMAKE_CURRENT_SOURCE_DIR})
   string(REPLACE "/" "_" progname ${progname_tmp})
 
-  if($ENV{PREFIX} STREQUAL "")
+  if("$ENV{PREFIX}" STREQUAL "")
     set(prefix "/usr")
   else()
     set(prefix "$ENV{PREFIX}")
   endif()
-    
-  if(${type} STREQUAL "EXECUTABLE")
+
+  if("${type}" STREQUAL "EXECUTABLE")
     message("adding program \"${progname}\"")
     add_executable(${progname} ${sources})
     set(type_v "RUNTIME")
