@@ -1,23 +1,12 @@
-
-# escape ';' in order to prevent list flattening
-function(listtoarg list_v arg_v)
-  string(REPLACE ";" "\;" arg_v ${list_v})
-endfunction(listtoarg)
-
-# unescape ';'
-function(argtolist arg_v list_v)
-  string(REPLACE "\;" ";" list_v ${arg_v})
-endfunction(argtolist)
-
 # create build and install targets, using sources_l, linking to linklibs_l (external) and linktargets_l (internal), setting properties_l as properties
 # type is "EXECUTABLE" for an executable program, or "SHARED" for a shared library
 # install is "ON" or "INSTALL" to generate install target, "OFF" or the regexp "NO.*" to skip install.
-# the arguments ending in _l are lists escaped as in listtoarg, the other are strings
+# the arguments ending in _l names of variables holding a list, the other are strings
 function(defBI sources_l type linklibs_l linktargets_l properties_l install)
-  # make arguments lists again
-  foreach(varn IN LISTS "sources;linklibs;linktargets;properties")
-    argtolist(${${varn}_l} ${${varn}})
+  foreach(varn IN ITEMS sources;linklibs;linktargets;properties)
+    set(${varn} ${${${varn}_l}})
   endforeach(varn)
+  message("args ${sources}::${linktargets}::${linktargets_l}::${${linktargets_l}}")
 
   # get a name for the current target, based on the current directory
   string(REPLACE "${CMAKE_SOURCE_DIR}/" "" progname_tmp ${CMAKE_CURRENT_SOURCE_DIR})
@@ -28,6 +17,7 @@ function(defBI sources_l type linklibs_l linktargets_l properties_l install)
   else()
     set(prefix "$ENV{PREFIX}")
   endif()
+  message("set prefix to ${prefix}")
 
   if("${type}" STREQUAL "EXECUTABLE")
     message("adding program \"${progname}\"")
@@ -56,22 +46,26 @@ function(defBI sources_l type linklibs_l linktargets_l properties_l install)
     set_property(TARGET ${progname} PROPERTY ${loopvar})
   endforeach(loopvar)
 
+  message("Examine exernal libs: ${linklibs}")
   # set linking to extenal libraries
   foreach(loopvar IN LISTS linklibs)
     string(REPLACE "_" "/" linklibs_d ${loopvar})
     if(${loopvar} STREQUAL " ")
-      return()
+      break()
     endif()
+    message("Looking for ${loopvar}")
     find_library(libloc${loopvar} ${loopvar} PATHS "${CMAKE_BINARY_DIR}/${linklibs_d}")
     target_link_libraries(${progname} ${libloc${loopvar}})
   endforeach(loopvar)
 
+  message("Examine link targets: ${linktargets}")
   # set links to targets in the same project
   foreach(loopvar IN LISTS linktargets)
     string(REPLACE "_" "/" linklibs_d ${loopvar})
     if(${loopvar} STREQUAL " ")
-      return()
+      break()
     endif()
+    message("Linking to ${loopvar}")
     target_link_libraries(${progname} ${loopvar})
   endforeach(loopvar)
 
