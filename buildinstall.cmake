@@ -2,15 +2,17 @@
 # type is "EXECUTABLE" for an executable program, or "SHARED" for a shared library
 # install is "ON" or "INSTALL" to generate install target, "OFF" or the regexp "NO.*" to skip install.
 # the arguments ending in _l names of variables holding a list, the other are strings
-function(defBI sources_l type linklibs_l linktargets_l properties_l install)
-  foreach(varn IN ITEMS sources;linklibs;linktargets;properties)
+function(defBI sources_l type linklibs_l linktargets_l properties_l install name)
+foreach(varn IN ITEMS sources;linklibs;linktargets;properties)
     set(${varn} ${${${varn}_l}})
   endforeach(varn)
-  message("args ${sources}::${linktargets}::${linktargets_l}::${${linktargets_l}}")
-
-  # get a name for the current target, based on the current directory
-  string(REPLACE "${CMAKE_SOURCE_DIR}/" "" progname_tmp ${CMAKE_CURRENT_SOURCE_DIR})
-  string(REPLACE "/" "_" progname ${progname_tmp})
+  if("${name}" STREQUAL " ")
+    # get a name for the current target, based on the current directory
+    string(REPLACE "${CMAKE_SOURCE_DIR}/" "" progname_tmp ${CMAKE_CURRENT_SOURCE_DIR})
+    string(REPLACE "/" "_" progname ${progname_tmp})
+  else()
+    set(progname ${name})
+  endif()
 
   if("$ENV{PREFIX}" STREQUAL "")
     set(prefix "/usr")
