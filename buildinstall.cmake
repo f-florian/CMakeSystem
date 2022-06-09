@@ -74,7 +74,11 @@ function(defBI sources_l type linklibs_l linktargets_l properties_l install name
     endif()
     message("Looking for ${loopvar}")
     find_library(libloc${loopvar} ${loopvar} PATHS "${CMAKE_BINARY_DIR}/${linklibs_d}")
-    target_link_libraries(${progname} ${libloc${loopvar}})
+    if(${type} STREQUAL "OBJECT")
+      set(unused 3)
+    else()
+      target_link_libraries(${progname} ${libloc${loopvar}})
+    endif()
   endforeach(loopvar)
 
   message("Examine link targets: ${linktargets}")
