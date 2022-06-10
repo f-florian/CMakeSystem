@@ -65,6 +65,17 @@ function(defBI sources_l type linklibs_l linktargets_l properties_l install name
     set_property(TARGET ${progname} PROPERTY ${loopvar})
   endforeach(loopvar)
 
+  message("Examine link targets: ${linktargets}")
+  # set links to targets in the same project
+  foreach(loopvar IN LISTS linktargets)
+    string(REPLACE "_" "/" linklibs_d ${loopvar})
+    if(${loopvar} STREQUAL " ")
+      break()
+    endif()
+    message("Linking to ${loopvar}")
+    target_link_libraries(${progname} ${loopvar})
+  endforeach(loopvar)
+
   message("Examine exernal libs: ${linklibs}")
   # set linking to extenal libraries
   foreach(loopvar IN LISTS linklibs)
@@ -79,17 +90,6 @@ function(defBI sources_l type linklibs_l linktargets_l properties_l install name
     else()
       target_link_libraries(${progname} ${libloc${loopvar}})
     endif()
-  endforeach(loopvar)
-
-  message("Examine link targets: ${linktargets}")
-  # set links to targets in the same project
-  foreach(loopvar IN LISTS linktargets)
-    string(REPLACE "_" "/" linklibs_d ${loopvar})
-    if(${loopvar} STREQUAL " ")
-      break()
-    endif()
-    message("Linking to ${loopvar}")
-    target_link_libraries(${progname} ${loopvar})
   endforeach(loopvar)
 
   # generate install info
